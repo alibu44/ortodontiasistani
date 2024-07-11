@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasta Tablosu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: relative;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #f9f9f9;
+            color: #000;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .editable {
+            cursor: pointer;
+        }
+        .editable:hover {
+            background-color: #f0f0f0;
+        }
+        .edit-input {
+            width: calc(100% - 16px); /* Adjust padding */
+            padding: 6px;
+            box-sizing: border-box;
+        }
+        .form-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .form-container label {
+            flex-basis: calc(50% - 10px);
+        }
+        .form-container input, .form-container button {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .foto-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .foto-container label {
+            flex-basis: 100%;
+        }
+        .foto-container .foto {
+            max-width: 100px;
+            max-height: 100px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Hasta Kayıtları</h2>
+
+<div class="form-container">
+    <form id="hastaForm">
+        <label for="ad">Adı:</label>
+        <input type="text" id="ad" name="ad" required>
+        <label for="soyad">Soyadı:</label>
+        <input type="text" id="soyad" name="soyad" required>
+        <label for="dogumTarihi">Doğum Tarihi:</label>
+        <input type="date" id="dogumTarihi" name="dogumTarihi" onchange="yasHesapla(this.value)" required>
+        <label for="yas">Yaşı:</label>
+        <input type="number" id="yas" name="yas" required disabled>
+        <label for="agizTaramalar">Ağız İçi Taramalar:</label>
+        <input type="text" id="agizTaramalar" name="agizTaramalar" required>
+        <label for="webceph">Webceph Analizi:</label>
+        <input type="text" id="webceph" name="webceph" required>
+        <label for="sinif">Sınıf:</label>
+        <input type="text" id="sinif" name="sinif" required>
+        <label for="sonIslem">Son Yapılan İşlem:</label>
+        <input type="text" id="sonIslem" name="sonIslem" required>
+        <label for="randevuTarihi">Bir Sonraki Randevu Tarihi:</label>
+        <input type="date" id="randevuTarihi" name="randevuTarihi" required>
+        <label for="notlar">Notlar:</label>
+        <input type="text" id="notlar" name="notlar">
+        <label for="rontgenler">Röntgenler:</label>
+        <input type="text" id="rontgenler" name="rontgenler">
+        <div class="foto-container">
+            <label for="foto">Fotoğraf:</label>
+            <input type="file" id="foto" name="foto" accept="image/*">
+        </div>
+        <button type="button" onclick="hastaEkle()">Ekle</button>
+    </form>
+</div>
+
+<table id="hastaTablosu">
+    <thead>
+        <tr>
+            <th><div class="tooltip">Adı<span class="tooltiptext">Hasta Adı</span></div></th>
+            <th><div class="tooltip">Soyadı<span class="tooltiptext">Hasta Soyadı</span></div></th>
+            <th><div class="tooltip">Yaşı<span class="tooltiptext">Hasta Yaşı</span></div></th>
+            <th><div class="tooltip">Doğum Tarihi<span class="tooltiptext">Hasta Doğum Tarihi</span></div></th>
+            <th><div class="tooltip">Ağız İçi Taramalar<span class="tooltiptext">Ağız İçi Taramaları</span></div></th>
+            <th><div class="tooltip">Webceph Analizi<span class="tooltiptext">Webceph Analizi</span></div></th>
+            <th><div class="tooltip">Sınıf<span class="tooltiptext">Hasta Sınıfı</span></div></th>
+            <th><div class="tooltip">Son Yapılan İşlem<span class="tooltiptext">Son Yapılan İşlem</span></div></th>
+            <th><div class="tooltip">Bir Sonraki Randevu Tarihi<span class="tooltiptext">Bir Sonraki Randevu Tarihi</span></div></th>
+            <th><div class="tooltip">Notlar<span class="tooltiptext">Hasta Notları</span></div></th>
+            <th><div class="tooltip">Röntgenler<span class="tooltiptext">Hasta Röntgenleri</span></div></th>
+            <th><div class="tooltip">Fotoğraf<span class="tooltiptext">Hasta Fotoğrafı</span></div></th>
+        </tr>
+    </thead>
+    <tbody id="hastaTabloGovdesi">
+        <!-- Initial row with editable cells -->
+        <tr>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="foto editable" onclick="hastaDuzenle(this)"></td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+    async function hastaEkle() {
+        const form = document.getElementById('hastaForm');
+        const formData = new FormData(form);
+        const hasta = {};
+
+        formData.forEach((value, key) => {
+            hasta[key] = value;
+        });
+
+        const response = await fetch('http://localhost:3000/hasta', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(hasta)
+        });
+
+        const yeniHasta = await response.json();
+        console.log(yeniHasta);
+
+        form.reset();
+    }
+
+    function hastaDuzenle(hucre) {
+        const eskiIcerik = hucre.innerText.trim();
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = eskiIcerik;
+        input.className = 'edit-input';
+        input.onblur = function () {
+            hucre.innerText = this.value;
+        };
+        input.onkeypress = function (e) {
+            if (e.key === 'Enter') {
+                hucre.innerText = this.value;
+            }
+        };
+        hucre.innerHTML = '';
+        hucre.appendChild(input);
+        input.focus();
+    }
+
+    function yasHesapla(dogumTarihi) {
+        const yasInput = document.getElementById('yas');
+        const dogumYili = new Date(dogumTarihi).getFullYear();
+        const simdikiYil = new Date().getFullYear();
+        const yas = simdikiYil - dogumYili;
+        yasInput.value = yas;
+    }
+
+    function fotoAc(fotoURL) {
+        window.open(fotoURL, '_blank');
+    }
+</script>
+
+</body>
+</html>
