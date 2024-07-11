@@ -161,11 +161,15 @@
         for (const key in hasta) {
             const td = document.createElement('td');
             if (key === 'foto') {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(formData.get('foto'));
-                img.className = 'foto';
-                img.onclick = () => window.open(img.src);
-                td.appendChild(img);
+                const fotoFile = formData.get('foto');
+                const fotoName = fotoFile.name;
+                const fotoURL = URL.createObjectURL(fotoFile);
+
+                const span = document.createElement('span');
+                span.innerText = fotoName;
+                span.className = 'editable';
+                span.onclick = () => window.open(fotoURL);
+                td.appendChild(span);
             } else {
                 td.innerText = hasta[key];
                 td.className = 'editable';
