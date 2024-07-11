@@ -142,43 +142,80 @@
     </thead>
     <tbody id="hastaTabloGovdesi">
         <!-- Initial row with editable cells -->
+        <tr>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="editable" onclick="hastaDuzenle(this)"></td>
+            <td class="foto editable" onclick="hastaDuzenle(this)"></td>
+        </tr>
     </tbody>
 </table>
 
 <script>
     function hastaEkle() {
         const form = document.getElementById('hastaForm');
-        const formData = new FormData(form);
-        const hasta = {};
+        const tabloGovdesi = document.getElementById('hastaTabloGovdesi');
 
-        formData.forEach((value, key) => {
-            hasta[key] = value;
+        const ad = form.ad.value;
+        const soyad = form.soyad.value;
+        const yas = form.yas.value;
+        const dogumTarihi = form.dogumTarihi.value;
+        const agizTaramalar = form.agizTaramalar.value;
+        const webceph = form.webceph.value;
+        const sinif = form.sinif.value;
+        const sonIslem = form.sonIslem.value;
+        const randevuTarihi = form.randevuTarihi.value;
+        const notlar = form.notlar.value;
+        const rontgenler = form.rontgenler.value;
+        const foto = form.foto.files[0]; // Fotoğraf dosyası
+
+        const yeniSatir = tabloGovdesi.insertRow();
+        const hucreler = [
+            { value: ad, header: "Adı" },
+            { value: soyad, header: "Soyadı" },
+            { value: yas, header: "Yaşı" },
+            { value: dogumTarihi, header: "Doğum Tarihi" },
+            { value: agizTaramalar, header: "Ağız İçi Taramalar" },
+            { value: webceph, header: "Webceph Analizi" },
+            { value: sinif, header: "Sınıf" },
+            { value: sonIslem, header: "Son Yapılan İşlem" },
+            { value: randevuTarihi, header: "Bir Sonraki Randevu Tarihi" },
+            { value: notlar, header: "Notlar" },
+            { value: rontgenler, header: "Röntgenler" }
+        ];
+
+        hucreler.forEach((hucre, index) => {
+            const yeniHucre = yeniSatir.insertCell(index);
+            yeniHucre.innerHTML = `<div class="tooltip">${hucre.value || ' '}<span class="tooltiptext">${hucre.header}</span></div>`;
+            yeniHucre.classList.add('editable');
+            yeniHucre.onclick = function () {
+                hastaDuzenle(this);
+            };
         });
 
-        const tbody = document.getElementById('hastaTabloGovdesi');
-        const tr = document.createElement('tr');
-
-        for (const key in hasta) {
-            const td = document.createElement('td');
-            if (key === 'foto') {
-                const fotoFile = formData.get('foto');
-                const fotoName = fotoFile.name;
-                const fotoURL = URL.createObjectURL(fotoFile);
-
-                const span = document.createElement('span');
-                span.innerText = fotoName;
-                span.className = 'editable';
-                span.onclick = () => window.open(fotoURL);
-                td.appendChild(span);
-            } else {
-                td.innerText = hasta[key];
-                td.className = 'editable';
-                td.onclick = () => hastaDuzenle(td);
-            }
-            tr.appendChild(td);
+        // Fotoğraf hücresi
+        const fotoHucre = yeniSatir.insertCell(yeniSatir.cells.length);
+        if (foto) {
+            const fotoURL = URL.createObjectURL(foto);
+            fotoHucre.innerHTML = `<div class="tooltip" onclick="fotoAc('${fotoURL}')">${foto.name}<span class="tooltiptext">Hasta Fotoğrafı</span></div>`;
+        } else {
+            fotoHucre.innerHTML = `<div class="tooltip">Fotoğraf<span class="tooltiptext">Hasta Fotoğrafı</span></div>`;
         }
+        fotoHucre.classList.add('editable');
+        fotoHucre.onclick = function (event) {
+            if (event.target.tagName !== 'DIV') {
+                hastaDuzenle(this);
+            }
+        };
 
-        tbody.appendChild(tr);
         form.reset();
     }
 
@@ -207,6 +244,10 @@
         const simdikiYil = new Date().getFullYear();
         const yas = simdikiYil - dogumYili;
         yasInput.value = yas;
+    }
+
+    function fotoAc(fotoURL) {
+        window.open(fotoURL, '_blank');
     }
 </script>
 
