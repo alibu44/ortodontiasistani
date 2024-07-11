@@ -142,24 +142,14 @@
     </thead>
     <tbody id="hastaTabloGovdesi">
         <!-- Initial row with editable cells -->
-        <tr>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="editable" onclick="hastaDuzenle(this)"></td>
-            <td class="foto editable" onclick="hastaDuzenle(this)"></td>
-        </tr>
     </tbody>
 </table>
 
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        verileriYukle();
+    });
+
     function hastaEkle() {
         const form = document.getElementById('hastaForm');
         const tabloGovdesi = document.getElementById('hastaTabloGovdesi');
@@ -216,6 +206,7 @@
             }
         };
 
+        kayitlariKaydet();
         form.reset();
     }
 
@@ -227,10 +218,12 @@
         input.className = 'edit-input';
         input.onblur = function () {
             hucre.innerText = this.value;
+            kayitlariKaydet();
         };
         input.onkeypress = function (e) {
             if (e.key === 'Enter') {
                 hucre.innerText = this.value;
+                kayitlariKaydet();
             }
         };
         hucre.innerHTML = '';
@@ -248,6 +241,43 @@
 
     function fotoAc(fotoURL) {
         window.open(fotoURL, '_blank');
+    }
+
+    function kayitlariKaydet() {
+        const tabloGovdesi = document.getElementById('hastaTabloGovdesi');
+        const satirlar = tabloGovdesi.rows;
+        const veriler = [];
+
+        for (let i = 0; i < satirlar.length; i++) {
+            const hucreler = satirlar[i].cells;
+            const satirVerisi = [];
+
+            for (let j = 0; j < hucreler.length; j++) {
+                satirVerisi.push(hucreler[j].innerText.trim());
+            }
+
+            veriler.push(satirVerisi);
+        }
+
+        localStorage.setItem('hastaKayitlari', JSON.stringify(veriler));
+    }
+
+    function verileriYukle() {
+        const tabloGovdesi = document.getElementById('hastaTabloGovdesi');
+        const veriler = JSON.parse(localStorage.getItem('hastaKayitlari')) || [];
+
+        veriler.forEach(satirVerisi => {
+            const yeniSatir = tabloGovdesi.insertRow();
+
+            satirVerisi.forEach((hucreVerisi, index) => {
+                const yeniHucre = yeniSatir.insertCell(index);
+                yeniHucre.innerHTML = `<div class="tooltip">${hucreVerisi || ' '}<span class="tooltiptext">${document.querySelectorAll('th')[index].innerText}</span></div>`;
+                yeniHucre.classList.add('editable');
+                yeniHucre.onclick = function () {
+                    hastaDuzenle(this);
+                };
+            });
+        });
     }
 </script>
 
